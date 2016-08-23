@@ -1885,6 +1885,7 @@ else
         extract_bootloader_from_rootfs
     fi
     if [ "x${spl_path_in_rootfs}" != "x" ] ; then
+	echo "spl_path_in_rootfs='${spl_path_in_rootfs}'"
         extract_spl_from_rootfs
     fi
 fi
