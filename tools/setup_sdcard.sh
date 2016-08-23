@@ -1,4 +1,5 @@
 #!/bin/bash -e
+set -x
 #
 # Copyright (c) 2009-2016 Robert Nelson <robertcnelson@gmail.com>
 # Copyright (c) 2010 Mario Di Francesco <mdf-code@digitalexile.it>
@@ -204,14 +205,24 @@ local_bootloader () {
 	fi
 }
 
+extract_spl_from_rootfs () {
+        echo ""
+	echo "Using spl extracted from rootfs"
+	echo "--------------------------------------"
+	mkdir -p ${TEMPDIR}/dl/
+	SPL=${spl_path_in_rootfs##*/}
+	tar --verbose -xf "${DIR}/${ROOTFS}"  ${spl_path_in_rootfs} -O >${TEMPDIR}/dl/${SPL}
+	echo "SPL from rootfs:${spl_path_in_rootfs} : ${SPL}"
+}
+
 extract_bootloader_from_rootfs () {
         echo ""
 	echo "Using Bootloader extracted from rootfs"
 	echo "--------------------------------------"
 	mkdir -p ${TEMPDIR}/dl/
-	UBOOT=${boot_name_in_rootfs##*/}
-	tar --verbose -xf "${DIR}/${ROOTFS}"  ${boot_name_in_rootfs} -O >${TEMPDIR}/dl/${UBOOT}
-	echo "UBOOT Bootloader from rootfs:${boot_name_in_rootfs} : ${UBOOT}"
+	UBOOT=${boot_path_in_rootfs##*/}
+	tar --verbose -xf "${DIR}/${ROOTFS}"  ${boot_path_in_rootfs} -O >${TEMPDIR}/dl/${UBOOT}
+	echo "UBOOT Bootloader from rootfs:${boot_path_in_rootfs} : ${UBOOT}"
 }
 
 dl_bootloader () {
@@ -971,8 +982,6 @@ kernel_detection () {
 		echo "Debug: image has: v${socfpga_dt_kernel}"
 		has_socfpga_kernel="enable"
 	fi
-
-
 }
 
 kernel_select () {
@@ -1871,8 +1880,11 @@ if [ "${spl_name}" ] || [ "${boot_name}" ] ; then
 		dl_bootloader
 	fi
 else
-    if [ ! "${boot_name_in_rootfs}" = "x" ] ; then
+    if [ "x${boot_path_in_rootfs}" != "x" ] ; then
         extract_bootloader_from_rootfs
+    fi
+    if [ "x${spl_path_in_rootfs}" != "x" ] ; then
+        extract_spl_from_rootfs
     fi
 fi
 
