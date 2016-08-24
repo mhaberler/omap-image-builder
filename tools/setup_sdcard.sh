@@ -1,6 +1,4 @@
 #!/bin/bash -e
-set -x
-
 #
 # Copyright (c) 2009-2016 Robert Nelson <robertcnelson@gmail.com>
 # Copyright (c) 2010 Mario Di Francesco <mdf-code@digitalexile.it>
@@ -1874,20 +1872,23 @@ fi
 find_issue
 detect_software
 
-if [ "${spl_name}" ] || [ "${boot_name}" ] ; then
+if [ "x${boot_path_in_rootfs}" != "x" ] ; then
+        USE_LOCAL_BOOT=1
+        extract_bootloader_from_rootfs
+else
+    if [ "${spl_name}" ] || [ "${boot_name}" ] ; then
 	if [ "${USE_LOCAL_BOOT}" ] ; then
-		local_bootloader
+		echo local_bootloader
 	else
 		dl_bootloader
 	fi
-else
-    if [ "x${boot_path_in_rootfs}" != "x" ] ; then
-        extract_bootloader_from_rootfs
     fi
-    if [ "x${spl_path_in_rootfs}" != "x" ] ; then
-	echo "spl_path_in_rootfs='${spl_path_in_rootfs}'"
+fi
+
+if [ "x${spl_path_in_rootfs}" != "x" ] ; then
+        echo "spl_path_in_rootfs='${spl_path_in_rootfs}'"
+        USE_LOCAL_BOOT=1
         extract_spl_from_rootfs
-    fi
 fi
 
 if [ ! "x${build_img_file}" = "xenable" ] ; then
